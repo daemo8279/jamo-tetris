@@ -581,6 +581,30 @@ body{
 <script>
 
 
+const SUPABASE_URL='https://aqiwtgbtycnxmsuglpmg.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxaXd0Z2J0eWNueG1zdWdscG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTc1NDYsImV4cCI6MjA5MjIzMzU0Nn0.YU9YwBy0LUA2k_4Yt2AdteFk-BQ91-65lGXBJ2YLmyo';
+
+// Supabase REST API 헬퍼
+async function sbInsert(data){
+  try{
+    const r=await fetch(SUPABASE_URL+'/rest/v1/ranking',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify(data)
+    });
+    return r.ok;
+  }catch(e){console.error('랭킹 저장 실패',e);return false;}
+}
+async function sbSelect(){
+  try{
+    const r=await fetch(SUPABASE_URL+'/rest/v1/ranking?select=name,score,level,words&order=score.desc&limit=20',{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    if(r.ok)return await r.json();
+    return [];
+  }catch(e){console.error('랭킹 불러오기 실패',e);return [];}
+}
+
 const COLS=8,ROWS=10;
 // CELL은 DOM 렌더 후 실제 canvas-area 크기로 계산
 let CELL=36, CW=COLS*CELL, CH=ROWS*CELL;
@@ -1010,7 +1034,7 @@ let stars=5,removeMode=false,hoverCell=null;
 let completedWordsList=[];
 let pauseLeft=3,paused=false;
 let gameStarted=false;
-let ranking=[];
+let ranking=JSON.parse(localStorage.getItem('jamoTetrisRanking')||'[]');
 let blocksDropped=0,autoHintLevel=0;
 let skipMissedOnce=false;
 let skipTimer=null; // {name, score, level, words}
@@ -1770,18 +1794,25 @@ function showGameOver(){
   showModal('modal-gameover');
 }
 
-function submitScore(){
+async function submitScore(){
   const inp2=document.getElementById('go-name-input');const name=(inp2?inp2.value:'').trim()||'익명';
-  ranking.push({name,score,level,words:wordCount});
-  ranking.sort((a,b)=>b.score-a.score);
-  if(ranking.length>10)ranking=ranking.slice(0,10);
+  // Supabase에 저장
+  await sbInsert({name,score,level,words:wordCount});
+  // 랭킹 모달 표시 (서버에서 최신 데이터 불러옴)
   showRankingModal();
 }
 
-function showRankingModal(){
+async function showRankingModal(){
   const list=document.getElementById('ranking-list');
   const podium=document.getElementById('ranking-podium');
   if(!list)return;
+  // 로딩 표시
+  if(podium)podium.innerHTML='<div style="text-align:center;color:var(--text-mute);padding:20px;font-size:14px;">불러오는 중...</div>';
+  list.innerHTML='';
+  showModal('modal-ranking');
+  // Supabase에서 최신 랭킹 불러오기
+  const serverRanking=await sbSelect();
+  ranking=serverRanking.length>0?serverRanking:ranking;
 
   const colors=['#FFD84D','#D6D8EB','#FF9A4D'];
   const heights=[88,70,58];
