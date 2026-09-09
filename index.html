@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0A0B18">
+  <meta name="description" content="블록을 쌓아 가로·세로로 한글 낱말을 완성하는 놀이입니다.">
+
+  <title>낱말 블록</title>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" href="/src/styles/index.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ 점수와 다음 블록 ══ -->
+  <header id="hud">
+    <div class="stat">
+      <div class="k">SCORE</div>
+      <div class="v" id="score-val">0</div>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="stat">
+      <div class="k">LV</div>
+      <div class="v" id="h-level">1</div>
+    </div>
+    <div id="hud-spacer"></div>
+    <div id="next-row"><span class="lbl">NEXT</span></div>
+    <button type="button" class="icon-btn" id="btn-help" title="놀이 방법" aria-label="놀이 방법">❔</button>
+    <button type="button" class="icon-btn" id="btn-pause" title="잠시 멈춤" aria-label="잠시 멈춤">⏸</button>
+  </header>
+
+  <!-- ══ 단계 진행 ══ -->
+  <div id="stage-bar">
+    <span id="stage-name">1단계 · 글자 블록</span>
+    <div id="stage-track"><div id="stage-fill"></div></div>
+    <span id="stage-count">0/5</span>
+  </div>
+
+  <!-- ══ 목표 낱말 힌트 ══ -->
+  <section id="hint-card">
+    <div id="hint-top">
+      <span id="hint-tag">▶ 현재 목표</span>
+      <div id="urgency"><div id="urgency-fill"></div></div>
+      <div id="hint-nav">
+        <button type="button" id="hint-prev" aria-label="이전 낱말">‹</button>
+        <span id="hint-index">1 / 3</span>
+        <button type="button" id="hint-next" aria-label="다음 낱말">›</button>
+      </div>
+    </div>
+    <div id="hint-meaning">잠시 후 목표 낱말이 나타납니다.</div>
+    <div id="hint-row">
+      <div id="hint-blanks"></div>
+      <span id="hint-glabel"></span>
+    </div>
+  </section>
+
+  <!-- ══ 게임판 ══ -->
+  <main id="board-wrap">
+    <div id="board-head">
+      <div id="stars-row"></div>
+      <div id="gems-row" style="display:none"></div>
+      <div id="combo-chip" style="display:none"></div>
+      <div id="board-msg"></div>
+    </div>
+    <div id="canvas-area">
+      <canvas id="gc"></canvas>
+      <div id="toast">
+        <div class="t-w" id="toast-w"></div>
+        <div class="t-s" id="toast-s"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══ 완성한 낱말 ══ -->
+  <div id="rail"><span class="lbl" id="rail-lbl">MADE</span></div>
+
+  <!-- ══ 조작 ══ -->
+  <div id="pad">
+    <button type="button" id="hold-btn" aria-label="블록 보관">
+      <span id="hold-jamo" class="empty">—</span>
+      <span id="hold-lbl">HOLD</span>
+    </button>
+    <div id="dpad">
+      <button type="button" class="pbtn" id="b-left" aria-label="왼쪽으로">←</button>
+      <button type="button" class="pbtn" id="b-soft" aria-label="빠르게 내리기">↓</button>
+      <button type="button" class="pbtn" id="b-right" aria-label="오른쪽으로">→</button>
+    </div>
+    <button type="button" id="btn-drop" aria-label="즉시 내리기">⬇</button>
+  </div>
+
+  <!-- ══════════ 오버레이 ══════════ -->
+  <div id="overlay">
+
+    <!-- 시작 -->
+    <div class="modal hidden" id="modal-start">
+      <div class="modal-emoji">🧩</div>
+      <h2>낱말 블록</h2>
+      <p>블록을 쌓아 가로·세로로<br>낱말을 완성하세요!</p>
+
+      <div id="start-player" style="display:none">
+        <span class="who">👤</span>
+        <span id="start-player-name"></span>
+        <button type="button" id="start-player-edit">이름 바꾸기</button>
+      </div>
+
+      <button type="button" class="btn" id="s-play">▶ 게임 시작</button>
+      <div class="btn-row">
+        <button type="button" class="btn ghost sm" id="s-howto">📖 놀이 방법</button>
+        <button type="button" class="btn ghost sm" id="s-rank">🏆 랭킹</button>
+      </div>
+    </div>
+
+    <!-- 닉네임 -->
+    <div class="modal hidden" id="modal-name">
+      <div class="modal-emoji">👤</div>
+      <h2 id="name-title">닉네임을 정해 주세요</h2>
+      <p id="name-desc">랭킹에 이 이름으로 기록이 남습니다.</p>
+
+      <div style="margin-top:14px">
+        <input type="text" id="name-input" maxlength="10" placeholder="예) 유진" autocomplete="nickname"
+               enterkeyhint="done" spellcheck="false">
+        <div id="name-error"></div>
+      </div>
+      <p id="name-hint">최대 10글자까지 쓸 수 있고, 나중에 바꿀 수 있어요.</p>
+
+      <button type="button" class="btn" id="name-confirm">확인</button>
+      <button type="button" class="btn ghost sm" id="name-cancel">취소</button>
+    </div>
+
+    <!-- 온보딩 -->
+    <div class="modal hidden" id="modal-demo">
+      <span class="mode-pill" id="demo-pill">1~5단계 · 글자 블록</span>
+      <h2 id="demo-title">글자 블록 익히기</h2>
+      <div id="demo-stage">
+        <div id="demo-grid"></div>
+        <div id="demo-caption"></div>
+        <div id="demo-dots"></div>
+      </div>
+      <button type="button" class="btn" id="demo-next">다음 ›</button>
+      <button type="button" class="btn ghost sm" id="demo-skip">건너뛰기</button>
+    </div>
+
+    <!-- 5단계 통과 -->
+    <div class="modal hidden" id="modal-advance">
+      <div class="modal-emoji">🎊</div>
+      <h2>5단계 통과!</h2>
+      <p>
+        여기까지 글자 블록으로 낱말을 만들었어요.<br>
+        이제 <b style="color:var(--accent)">자음과 모음</b>이 따로 떨어집니다.
+      </p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="k">SCORE</div><div class="v" id="adv-score">0</div></div>
+        <div class="stat-card"><div class="k">WORDS</div><div class="v" id="adv-words">0</div></div>
+      </div>
+      <button type="button" class="btn" id="adv-yes">다음 단계로 진행할까요? · 예</button>
+      <button type="button" class="btn ghost sm" id="adv-no">아니오, 여기서 마칠게요</button>
+    </div>
+
+    <!-- 잠시 멈춤 -->
+    <div class="modal hidden" id="modal-pause">
+      <div class="modal-emoji">⏸</div>
+      <h2>잠시 멈춤</h2>
+      <p id="pause-info">남은 정지 기회: 3회</p>
+      <button type="button" class="btn" id="p-resume">▶ 계속하기</button>
+      <div class="btn-row">
+        <button type="button" class="btn ghost sm" id="p-howto">📖 놀이 방법</button>
+        <button type="button" class="btn ghost sm" id="p-home">🏠 처음으로</button>
+      </div>
+    </div>
+
+    <!-- 게임 종료 -->
+    <div class="modal hidden" id="modal-gameover">
+      <div class="modal-emoji" id="go-emoji">🏁</div>
+      <h2 id="go-title">게임 종료</h2>
+      <div id="go-who"><span id="go-player">익명</span> 님의 기록</div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="k">SCORE</div><div class="v" id="go-score">0</div></div>
+        <div class="stat-card"><div class="k">LEVEL</div><div class="v" id="go-level">1</div></div>
+        <div class="stat-card"><div class="k">WORDS</div><div class="v" id="go-words">0</div></div>
+      </div>
+
+      <div class="go-badges" id="go-badges"></div>
+
+      <button type="button" class="btn" id="go-submit">🏆 랭킹에 올리기</button>
+      <div class="btn-row">
+        <button type="button" class="btn ghost sm" id="go-rename">이름 바꾸기</button>
+        <button type="button" class="btn ghost sm" id="go-retry">↻ 다시하기</button>
+        <button type="button" class="btn ghost sm" id="go-home">🏠 처음으로</button>
+      </div>
+    </div>
+
+    <!-- 랭킹 -->
+    <div class="modal hidden" id="modal-rank">
+      <h2>🏆 랭킹</h2>
+      <div id="rank-list"></div>
+      <button type="button" class="btn" id="rank-close">닫기</button>
+    </div>
+
+    <!-- 놀이 방법 -->
+    <div class="modal hidden" id="modal-howto">
+      <h2>📖 놀이 방법</h2>
+      <div class="howto-body">
+        <div class="keyrow"><span class="keycap">← →</span><span>블록을 좌우로 옮깁니다</span></div>
+        <div class="keyrow"><span class="keycap">↓</span><span>빠르게 내립니다</span></div>
+        <div class="keyrow"><span class="keycap">SPACE</span><span>바닥까지 즉시 내립니다</span></div>
+        <div class="keyrow"><span class="keycap">C</span><span>블록을 한 칸에 보관합니다</span></div>
+        <div class="keyrow"><span class="keycap">P</span><span>잠시 멈춥니다</span></div>
+        <div class="keyrow"><span class="keycap">★</span><span>별을 눌러 블록 하나를 지웁니다</span></div>
+        <div class="keyrow"><span class="keycap">💎</span><span>보석을 눌러 한 줄을 통째로 지웁니다</span></div>
+      </div>
+      <p class="howto-note">
+        가로는 <b>왼쪽에서 오른쪽</b>으로, 세로는 <b>위에서 아래</b>로 읽습니다.<br>
+        보이는 그대로 읽어서 목표 낱말이 되면 블록이 사라집니다.<br><br>
+        낱말을 <b>연달아 5개</b> 완성하면 보석을 하나 받습니다.
+        목표 낱말을 놓치면 이어 오던 콤보가 끊어집니다.
+      </p>
+      <div class="btn-row">
+        <button type="button" class="btn ghost sm" id="howto-demo1">글자 블록 다시 보기</button>
+        <button type="button" class="btn ghost sm" id="howto-demo2">자모 블록 다시 보기</button>
+      </div>
+      <button type="button" class="btn" id="howto-close">닫기</button>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
