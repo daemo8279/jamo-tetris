@@ -1,0 +1,130 @@
+/* 화면을 위에서 아래로 쌓는 뼈대입니다. */
+
+#app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+
+  background: linear-gradient(170deg, #141631, var(--bg-deep));
+}
+
+/* ── 위쪽 정보 줄 ── */
+#hud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+#hud .stat,
+#hud .icon-btn,
+#next-row {
+  flex-shrink: 0;
+}
+
+#hud-spacer {
+  flex: 1;
+}
+
+/* ── 단계 진행 줄 ── */
+#stage-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+#stage-name {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+#stage-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+#stage-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.35s;
+}
+
+#stage-count {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+/* ── 게임판 ── */
+#board-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#board-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+#board-msg {
+  flex: 1;
+  font-size: 11px;
+  color: var(--dim);
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#canvas-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+#gc {
+  border-radius: var(--r-md);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  touch-action: none;
+}
+
+/* ── 아래쪽 조작판 ── */
+#pad {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+  height: 64px;
+}
+
+#dpad {
+  flex: 1;
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+}

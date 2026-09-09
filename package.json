@@ -1,0 +1,20 @@
+{
+  "name": "nadmal-blocks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "블록을 쌓아 가로·세로로 한글 낱말을 완성하는 놀이",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11"
+  ]
+}
