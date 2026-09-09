@@ -1,6 +1,0 @@
-/* 모든 스타일의 진입점입니다. 불러오는 순서가 우선순위에 영향을 줍니다. */
-@import './tokens.css';
-@import './base.css';
-@import './layout.css';
-@import './components.css';
-@import './modals.css';
