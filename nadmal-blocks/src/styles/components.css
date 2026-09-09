@@ -1,0 +1,364 @@
+/* 화면을 이루는 낱낱의 조각들입니다. */
+
+/* ── 점수와 단계 ── */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stat .k {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  font-family: var(--font-mono);
+  color: var(--mute);
+}
+
+.stat .v {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+  font-family: var(--font-mono);
+}
+
+#score-val {
+  font-size: 23px;
+  color: var(--primary-light);
+}
+
+.hud-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--line-strong);
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+
+.icon-btn:active {
+  transform: scale(0.93);
+}
+
+/* ── 다음 블록 ── */
+#next-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#next-row .lbl {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  color: var(--mute);
+}
+
+.nblock {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--bg-deep);
+}
+
+.nblock.n0 {
+  width: 29px;
+  height: 29px;
+  font-size: 15px;
+}
+
+/* ── 힌트 카드 ── */
+#hint-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 9px 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+
+#hint-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#hint-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--good);
+}
+
+#urgency {
+  flex: 1;
+  height: 4px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+#urgency-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.3s, background 0.3s;
+}
+
+#hint-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#hint-nav button {
+  width: 19px;
+  height: 19px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 11px;
+  line-height: 1;
+}
+
+#hint-index {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--mute);
+}
+
+#hint-meaning {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+#hint-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#hint-blanks {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.blank-box {
+  width: 29px;
+  height: 33px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--dim);
+  transition: all 0.25s;
+}
+
+/* 첫소리를 알려 준 칸입니다. */
+.blank-box.hint {
+  background: rgba(124, 92, 255, 0.35);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* 낱말을 맞혀서 드러난 칸입니다. */
+.blank-box.done {
+  background: var(--good);
+  border-color: var(--good);
+  color: #06210f;
+}
+
+.blank-sep {
+  font-size: 11px;
+  color: var(--mute);
+}
+
+#hint-glabel {
+  margin-left: 4px;
+  font-size: 10.5px;
+  color: var(--mute);
+}
+
+/* ── 별(지우개) ── */
+#stars-row {
+  display: flex;
+  gap: 2px;
+}
+
+.star-btn {
+  padding: 0 1px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.star-btn.avail {
+  color: var(--warn);
+}
+
+.star-btn.used {
+  color: #3a3d5e;
+}
+
+.star-btn.on {
+  filter: drop-shadow(0 0 5px var(--warn));
+}
+
+/* ── 완성 알림 ── */
+#toast {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%) scale(0.9);
+  z-index: 5;
+
+  padding: 14px 22px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s;
+
+  background: rgba(10, 11, 24, 0.94);
+  border: 1px solid var(--primary);
+  border-radius: var(--r-lg);
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#toast .t-w {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+#toast .t-s {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+/* ── 완성한 낱말 목록 ── */
+#rail {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#rail::-webkit-scrollbar {
+  display: none;
+}
+
+#rail .lbl {
+  flex-shrink: 0;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  color: var(--mute);
+}
+
+.word-badge {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  font-size: 11.5px;
+  font-weight: 700;
+  background: rgba(124, 92, 255, 0.18);
+  border: 1px solid rgba(124, 92, 255, 0.4);
+}
+
+/* 목표가 아닌 낱말을 우연히 만들었을 때입니다. */
+.word-badge.bonus {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+/* ── 조작 버튼 ── */
+#hold-btn {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+#hold-jamo {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+#hold-jamo.empty {
+  font-size: 17px;
+  color: var(--mute);
+}
+
+#hold-lbl {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+  color: var(--mute);
+}
+
+.pbtn {
+  flex: 1;
+  max-width: 66px;
+  height: 54px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+}
+
+.pbtn:active {
+  background: var(--surface-2);
+  transform: scale(0.95);
+}
+
+#btn-drop {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+  background: linear-gradient(160deg, var(--primary-light), var(--primary));
+  box-shadow: 0 4px 14px rgba(124, 92, 255, 0.4);
+}
+
+#btn-drop:active {
+  transform: scale(0.94);
+}
